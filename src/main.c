@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include "parser.h"
+#include "scheduler.h"
+#include "metrics.h"
 
 #define MAX_PROCESSES 100
 
@@ -9,13 +11,18 @@ int main() {
 
     int n = load_processes("tests/workload1.txt", processes, MAX_PROCESSES);
 
-    printf("Loaded %d processes\n", n);
+    schedule_fcfs(processes, n);
+
+    calculate_metrics(processes, n);
 
     for (int i = 0; i < n; i++) {
-        printf("%s %d %d\n",
+        printf("%s Start:%d Finish:%d WT:%d TT:%d RT:%d\n",
                processes[i].pid,
-               processes[i].arrival_time,
-               processes[i].burst_time);
+               processes[i].start_time,
+               processes[i].finish_time,
+               processes[i].waiting_time,
+               processes[i].turnaround_time,
+               processes[i].response_time);
     }
 
     return 0;
