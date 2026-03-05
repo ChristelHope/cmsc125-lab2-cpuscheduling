@@ -7,12 +7,16 @@
 
 int main() {
 
+    // creates storage for process data
     Process processes[MAX_PROCESSES];
 
+    // load process from one file then returns number of processes
     int n = load_processes("tests/workload1.txt", processes, MAX_PROCESSES);
 
+    // runs FCFS scheduling
     schedule_fcfs(processes, n);
 
+    // computes the waiting, turnaround and return time
     calculate_metrics(processes, n);
 
     for (int i = 0; i < n; i++) {
@@ -27,3 +31,4 @@ int main() {
 
     return 0;
 }
+
