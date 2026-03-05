@@ -11,12 +11,15 @@ int load_processes(const char *filename, Process processes[], int max_processes)
         return -1;
     }
 
+    // how many processes were loaded
     int count = 0;
 
     while (count < max_processes) {
 
+        // buffer to hold one line from the file
         char line[128];
 
+        // reads one line from the file
         if (fgets(line, sizeof(line), file) == NULL)
             break;
 
@@ -24,6 +27,7 @@ int load_processes(const char *filename, Process processes[], int max_processes)
         if (line[0] == '#')
             continue;
 
+        // creates a temporary process object
         Process p;
 
         if (sscanf(line, "%s %d %d",
@@ -39,6 +43,7 @@ int load_processes(const char *filename, Process processes[], int max_processes)
             p.turnaround_time = 0;
             p.response_time = 0;
 
+            // for MLFQ scheduling
             p.priority = 0;
             p.time_in_queue = 0;
 
