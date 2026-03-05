@@ -7,6 +7,7 @@
 
 int schedule_fcfs(Process *processes, int n) {
 
+    // represents CPU clock time
     int current_time = 0;
 
     for (int i = 0; i < n; i++) {
@@ -16,7 +17,7 @@ int schedule_fcfs(Process *processes, int n) {
             current_time = processes[i].arrival_time;
         }
 
-        // first time the process gets CPU
+        // records when the process starts
         processes[i].start_time = current_time;
 
         // execute process
@@ -31,3 +32,4 @@ int schedule_fcfs(Process *processes, int n) {
 
     return 0;
 }
+
