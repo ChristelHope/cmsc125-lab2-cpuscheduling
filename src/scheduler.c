@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include "scheduler.h"
 
+int timeline[1000];
+int timeline_length = 0;
+
 int schedule_fcfs(Process *processes, int n) {
 
     // represents CPU clock time
@@ -45,7 +48,10 @@ int schedule_sjf(Process *processes, int n) {
 
             if (processes[i].arrival_time <= current_time &&
                 visited[i] == 0 &&
-                processes[i].burst_time < min_burst) {
+                (processes[i].burst_time < min_burst ||
+                (processes[i].burst_time == min_burst &&
+                shortest != -1 &&
+                processes[i].arrival_time < processes[shortest].arrival_time))) {
 
                 min_burst = processes[i].burst_time;
                 shortest = i;
@@ -146,6 +152,8 @@ int schedule_stcf(Process *processes, int n) {
         if (processes[shortest].start_time == -1)
             processes[shortest].start_time = current_time;
 
+        timeline[timeline_length++] = shortest;
+
         processes[shortest].remaining_time--;
 
         current_time++;
@@ -165,6 +173,9 @@ int schedule_stcf(Process *processes, int n) {
 // (if shorter job arrives, cpu switches to it immediately)
 
 void reset_processes(Process *processes, int n) {
+
+    timeline_length = 0;
+
     for (int i = 0; i < n; i++) {
         processes[i].remaining_time = processes[i].burst_time;
         processes[i].start_time = -1;
@@ -172,5 +183,6 @@ void reset_processes(Process *processes, int n) {
         processes[i].waiting_time = 0;
         processes[i].turnaround_time = 0;
         processes[i].response_time = 0;
+        processes[i].timeline_length = 0;
     }
 }
