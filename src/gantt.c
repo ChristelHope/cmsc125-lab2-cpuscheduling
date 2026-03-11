@@ -3,30 +3,40 @@
 #include "gantt.h"
 
 void print_gantt_chart(Process *processes, int n) {
-    
+
     printf("\nGantt Chart:\n");
 
-    for (int i = 0; i < n - 1; i++) { // sort by start time
+    /* create a temporary copy so we don't modify the original array */
+    Process temp[100];
+
+    for (int i = 0; i < n; i++) {
+        temp[i] = processes[i];
+    }
+
+    /* sort the copy by start_time */
+    for (int i = 0; i < n - 1; i++) {
         for (int j = i + 1; j < n; j++) {
 
-            if (processes[j].start_time < processes[i].start_time) {
+            if (temp[j].start_time < temp[i].start_time) {
 
-                Process temp = processes[i];
-                processes[i] = processes[j];
-                processes[j] = temp;
+                Process swap = temp[i];
+                temp[i] = temp[j];
+                temp[j] = swap;
             }
         }
     }
 
+    /* print process blocks */
     for (int i = 0; i < n; i++) {
-        printf("| %s ", processes[i].pid);
+        printf("| %s ", temp[i].pid);
     }
 
     printf("|\n");
 
+    /* print start times */
     for (int i = 0; i < n; i++) {
-        printf("%d   ", processes[i].start_time);
+        printf("%-5d", temp[i].start_time);
     }
 
-    printf("%d\n\n", processes[n-1].finish_time);
+    printf("%d\n\n", temp[n-1].finish_time);
 }
