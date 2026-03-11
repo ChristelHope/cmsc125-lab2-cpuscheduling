@@ -18,6 +18,9 @@ typedef struct {
     int priority;
     int time_in_queue;
 
+    int timeline[1000];
+    int timeline_length;
+    
 } Process;
 
 #endif
