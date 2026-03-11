@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include "process.h"
 #include "parser.h"
 
 int load_processes(const char *filename, Process processes[], int max_processes) {
