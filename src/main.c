@@ -2,6 +2,7 @@
 #include "parser.h"
 #include "scheduler.h"
 #include "metrics.h"
+#include "gantt.h"
 
 #define MAX_PROCESSES 100
 
@@ -16,6 +17,8 @@ int main() {
     // runs FCFS scheduling
     schedule_fcfs(processes, n);
 
+    print_gantt_chart(processes, n);
+    
     // computes the waiting, turnaround and return time
     calculate_metrics(processes, n);
 

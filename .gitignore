@@ -1,55 +1,22 @@
-# Prerequisites
-*.d
-
-# Object files
+# Compiled files
 *.o
-*.ko
-*.obj
-*.elf
-
-# Linker output
-*.ilk
-*.map
-*.exp
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
 *.out
-*.app
-*.i*86
-*.x86_64
-*.hex
+*.exe
 
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
+# Binary
+schedsim
 
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
+# OS junk
+.DS_Store
 
-# debug information files
-*.dwo
+#this file is for ignoring compiled object files, 
+#executables, and OS-specific files that are not 
+#relevant to the source code.
+ 
+# By including these patterns in the .gitignore file, we can ensure that 
+#only the source code and relevant files are tracked by
+# version control, while keeping the repository clean 
+#and free of unnecessary files.
+
+# This helps to maintain a clear and organized 
+# codebase, making it easier to collaborate & manage project effectively
