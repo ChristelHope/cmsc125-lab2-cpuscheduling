@@ -158,7 +158,19 @@ int schedule_stcf(Process *processes, int n) {
     }
 
     return 0;
-} //always checks which process has the shortest remaining time,
+} 
+
+//always checks which process has the shortest remaining time,
 // runs it for 1 time unit, then checks again, repeats until all finish
 // (if shorter job arrives, cpu switches to it immediately)
 
+void reset_processes(Process *processes, int n) {
+    for (int i = 0; i < n; i++) {
+        processes[i].remaining_time = processes[i].burst_time;
+        processes[i].start_time = -1;
+        processes[i].finish_time = 0;
+        processes[i].waiting_time = 0;
+        processes[i].turnaround_time = 0;
+        processes[i].response_time = 0;
+    }
+}
