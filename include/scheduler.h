@@ -9,6 +9,8 @@ int schedule_stcf(Process *processes, int n);
 int schedule_rr(Process *processes, int n, int quantum);
 int schedule_mlfq(Process *processes, int n);
 
+void reset_processes(Process *processes, int n);
+
 #endif
 
 // this file declares the function prototypes for the scheduling
