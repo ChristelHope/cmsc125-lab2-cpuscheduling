@@ -14,11 +14,14 @@ int main() {
     // load process from one file then returns number of processes
     int n = load_processes("tests/workload1.txt", processes, MAX_PROCESSES);
 
-    // runs FCFS scheduling
-    schedule_fcfs(processes, n);
+    // runs algo scheduling; edit line below to test different algos
+      //schedule_fcfs(processes, n);
+    schedule_sjf(processes, n);
+    //schedule_stcf(processes, n);
+    //schedule_rr(processes, n, 2);             //quantum of 2 time units
 
     print_gantt_chart(processes, n);
-    
+
     // computes the waiting, turnaround and return time
     calculate_metrics(processes, n);
 
