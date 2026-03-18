@@ -4,6 +4,19 @@
 int timeline[1000];
 int timeline_length = 0;
 
+void execute_process(Process *p, int *current_time, int run_time) {
+
+    if (p->start_time == -1)
+        p->start_time = *current_time;
+
+    *current_time += run_time;
+    p->remaining_time -= run_time;
+
+    if (p->remaining_time == 0) {
+        p->finish_time = *current_time;
+    }
+}
+
 int schedule_fcfs(Process *processes, int n) {
 
     // represents CPU clock time
@@ -16,19 +29,14 @@ int schedule_fcfs(Process *processes, int n) {
             current_time = processes[i].arrival_time;
         }
 
-        // records when the process starts
-        processes[i].start_time = current_time;
-
-        // execute process
-        current_time += processes[i].burst_time;
-
-        // record completion
-        processes[i].finish_time = current_time;
-
-        // update remaining time
-        processes[i].remaining_time = 0;
+       int run_time = processes[i].burst_time;
+        // record timeline
+        for (int t = 0; t < run_time; t++) {
+            timeline[timeline_length++] = i;
+        }
+        // execute using helper
+        execute_process(&processes[i], &current_time, run_time);
     }
-
     return 0;
 }// Processes are executed in the order they arrive, once one starts running,
 // it runs until completion
@@ -62,17 +70,15 @@ int schedule_sjf(Process *processes, int n) {
             current_time++;
             continue;
         }
+        int run_time = processes[shortest].burst_time;
 
-        processes[shortest].start_time = current_time;
-
-        current_time += processes[shortest].burst_time;
-
-        processes[shortest].finish_time = current_time;
-
-        processes[shortest].remaining_time = 0;
+        // record timeline
+        for (int t = 0; t < run_time; t++) {
+            timeline[timeline_length++] = shortest;
+        }
+        execute_process(&processes[shortest], &current_time, run_time);
 
         visited[shortest] = 1;
-
         completed++;
     }
 
@@ -85,43 +91,61 @@ int schedule_rr(Process *processes, int n, int quantum) {
     int current_time = 0;
     int completed = 0;
 
+    int queue[100];
+    int front = 0, rear = 0;
+
+    // Add processes that arrive at time 0
+    for (int i = 0; i < n; i++) {
+        if (processes[i].arrival_time == 0) {
+            queue[rear++] = i;
+        }
+    }
+
     while (completed < n) {
 
-        int executed = 0;
-
-        for (int i = 0; i < n; i++) {
-
-            if (processes[i].remaining_time > 0 &&
-                processes[i].arrival_time <= current_time) {
-
-                if (processes[i].start_time == -1)
-                    processes[i].start_time = current_time;
-
-                int run_time =
-                    processes[i].remaining_time < quantum
-                    ? processes[i].remaining_time
-                    : quantum;
-
-                current_time += run_time;
-
-                processes[i].remaining_time -= run_time;
-
-                if (processes[i].remaining_time == 0) {
-                    processes[i].finish_time = current_time;
-                    completed++;
-                }
-
-                executed = 1;
-            }
+        if (front == rear) {
+            current_time++;
+            continue;
         }
 
-        if (!executed)
-            current_time++;
+        int i = queue[front++];
+
+        if (processes[i].remaining_time > 0) {
+
+            int run_time =
+                processes[i].remaining_time < quantum
+                ? processes[i].remaining_time
+                : quantum;
+
+            // record timeline
+            for (int t = 0; t < run_time; t++) {
+                timeline[timeline_length++] = i;
+            }
+
+            execute_process(&processes[i], &current_time, run_time);
+
+            // check new arrivals during execution
+            for (int j = 0; j < n; j++) {
+                if (processes[j].arrival_time > current_time - run_time &&
+                    processes[j].arrival_time <= current_time) {
+                    queue[rear++] = j;
+                }
+            }
+
+            if (processes[i].remaining_time > 0) {
+                queue[rear++] = i; // put back in queue
+            } else {
+                processes[i].finish_time = current_time;
+                completed++;
+            }
+        }
     }
 
     return 0;
-} //gives each porcess a small CPU time slice, moves to the next one, 
-//repeats until all finish
+}
+//always checks which process has the shortest remaining time,
+// runs it for 1 time unit, then checks again, repeats until all finish
+// (if shorter job arrives, cpu switches to it immediately)
 
 int schedule_stcf(Process *processes, int n) {
 
@@ -133,8 +157,8 @@ int schedule_stcf(Process *processes, int n) {
         int shortest = -1;
         int min_remaining = 999999;
 
+        // find process with shortest remaining time
         for (int i = 0; i < n; i++) {
-
             if (processes[i].arrival_time <= current_time &&
                 processes[i].remaining_time > 0 &&
                 processes[i].remaining_time < min_remaining) {
@@ -144,33 +168,26 @@ int schedule_stcf(Process *processes, int n) {
             }
         }
 
+        // if no process is ready, CPU is idle
         if (shortest == -1) {
             current_time++;
             continue;
         }
 
-        if (processes[shortest].start_time == -1)
-            processes[shortest].start_time = current_time;
-
+        // record execution (1 time unit only!)
         timeline[timeline_length++] = shortest;
 
-        processes[shortest].remaining_time--;
+        // execute for 1 unit (preemptive!)
+        execute_process(&processes[shortest], &current_time, 1);
 
-        current_time++;
-
+        // if finished
         if (processes[shortest].remaining_time == 0) {
-
-            processes[shortest].finish_time = current_time;
             completed++;
         }
     }
 
     return 0;
-} 
-
-//always checks which process has the shortest remaining time,
-// runs it for 1 time unit, then checks again, repeats until all finish
-// (if shorter job arrives, cpu switches to it immediately)
+}
 
 void reset_processes(Process *processes, int n) {
 
