@@ -7,9 +7,11 @@ extern int timeline_length;
 
 void print_gantt_chart(Process *processes, int n) {
 
+    (void)n; // suppress unused parameter warning
+
     printf("\nGantt Chart:\n");
 
-      if (timeline_length == 0) {
+    if (timeline_length == 0) {
         printf("No timeline data.\n");
         return;
     }
@@ -25,7 +27,6 @@ void print_gantt_chart(Process *processes, int n) {
     printf("\n");
 
     // print time markers
-    int current_time = 0;
     printf("0");
 
     for (int i = 1; i < timeline_length; i++) {

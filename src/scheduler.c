@@ -94,14 +94,17 @@ int schedule_rr(Process *processes, int n, int quantum) {
     int queue[100];
     int front = 0, rear = 0;
 
-    // Add processes that arrive at time 0
-    for (int i = 0; i < n; i++) {
-        if (processes[i].arrival_time == 0) {
-            queue[rear++] = i;
-        }
-    }
+    int added[100] = {0};
 
     while (completed < n) {
+
+        // add newly arrived processes
+        for (int j = 0; j < n; j++) {
+            if (!added[j] && processes[j].arrival_time <= current_time) {
+                queue[rear++] = j;
+                added[j] = 1;
+            }
+        }
 
         if (front == rear) {
             current_time++;
@@ -123,14 +126,6 @@ int schedule_rr(Process *processes, int n, int quantum) {
             }
 
             execute_process(&processes[i], &current_time, run_time);
-
-            // check new arrivals during execution
-            for (int j = 0; j < n; j++) {
-                if (processes[j].arrival_time > current_time - run_time &&
-                    processes[j].arrival_time <= current_time) {
-                    queue[rear++] = j;
-                }
-            }
 
             if (processes[i].remaining_time > 0) {
                 queue[rear++] = i; // put back in queue

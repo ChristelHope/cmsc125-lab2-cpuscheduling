@@ -16,7 +16,7 @@ echo "Test 3: STCF"
 
 echo ""
 echo "Test 4: Round Robin (q=2)"
-./cpu_scheduling.exe tests/workload1.txt rr 2
+./cpu_scheduling.exe tests/workload1.txt rr 30
 
 echo ""
 echo "All tests executed."
