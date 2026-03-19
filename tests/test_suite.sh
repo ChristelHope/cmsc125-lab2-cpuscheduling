@@ -19,4 +19,9 @@ echo "Test 4: Round Robin (q=2)"
 ./cpu_scheduling.exe tests/workload1.txt rr 30
 
 echo ""
+echo "Test 5: MLFQ"
+./cpu_scheduling.exe tests/workload1.txt mlfq
+
+echo ""
 echo "All tests executed."
+
