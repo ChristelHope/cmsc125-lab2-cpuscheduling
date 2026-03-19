@@ -26,14 +26,22 @@ void print_gantt_chart(Process *processes, int n) {
 
     printf("\n");
 
-    // print time markers
-    printf("0");
+    // print time markers aligned with blocks
 
-    for (int i = 1; i < timeline_length; i++) {
-        if (timeline[i] != timeline[i - 1]) {
-            printf("%5d", i);
+    for (int i = 0; i < timeline_length; i++) {
+        if (i == 0 || timeline[i] != timeline[i - 1]) {
+
+            int spaces = 4; // adjust spacing here if needed
+
+            if (i == 0) {
+                printf("0");
+            } else {
+                printf("%*d", spaces, i);
+            }
+
         }
     }
 
+    // print final time
     printf("%5d\n\n", timeline_length);
 }
