@@ -49,11 +49,97 @@ int main(int argc, char *argv[]) {
         reset_processes(processes, n);
         schedule_rr(processes, n, quantum);
 
+        } else if (strcmp(algorithm, "mlfq") == 0) {
+
+    reset_processes(processes, n);
+    schedule_mlfq(processes, n);
+
+    } else if (strcmp(algorithm, "compare") == 0) {
+
+        printf("=== COMPARISON MODE ===\n\n");
+
+        // FCFS
+        reset_processes(processes, n);
+        schedule_fcfs(processes, n);
+        calculate_metrics(processes, n);
+
+        int total_wt=0, total_tt=0, total_rt=0;
+        for (int i=0;i<n;i++){
+            total_wt += processes[i].waiting_time;
+            total_tt += processes[i].turnaround_time;
+            total_rt += processes[i].response_time;
+        }
+        printf("FCFS  -> Avg WT:%d Avg TT:%d Avg RT:%d\n",
+            total_wt/n, total_tt/n, total_rt/n);
+
+
+        // SJF
+        reset_processes(processes, n);
+        schedule_sjf(processes, n);
+        calculate_metrics(processes, n);
+
+        total_wt=total_tt=total_rt=0;
+        for (int i=0;i<n;i++){
+            total_wt += processes[i].waiting_time;
+            total_tt += processes[i].turnaround_time;
+            total_rt += processes[i].response_time;
+        }
+        printf("SJF   -> Avg WT:%d Avg TT:%d Avg RT:%d\n",
+            total_wt/n, total_tt/n, total_rt/n);
+
+
+        // STCF
+        reset_processes(processes, n);
+        schedule_stcf(processes, n);
+        calculate_metrics(processes, n);
+
+        total_wt=total_tt=total_rt=0;
+        for (int i=0;i<n;i++){
+            total_wt += processes[i].waiting_time;
+            total_tt += processes[i].turnaround_time;
+            total_rt += processes[i].response_time;
+        }
+        printf("STCF  -> Avg WT:%d Avg TT:%d Avg RT:%d\n",
+            total_wt/n, total_tt/n, total_rt/n);
+
+
+        // RR
+        reset_processes(processes, n);
+        schedule_rr(processes, n, 30);
+        calculate_metrics(processes, n);
+
+        total_wt=total_tt=total_rt=0;
+        for (int i=0;i<n;i++){
+            total_wt += processes[i].waiting_time;
+            total_tt += processes[i].turnaround_time;
+            total_rt += processes[i].response_time;
+        }
+        printf("RR    -> Avg WT:%d Avg TT:%d Avg RT:%d\n",
+            total_wt/n, total_tt/n, total_rt/n);
+
+
+        // MLFQ
+        reset_processes(processes, n);
+        schedule_mlfq(processes, n);
+        calculate_metrics(processes, n);
+
+        total_wt=total_tt=total_rt=0;
+        for (int i=0;i<n;i++){
+            total_wt += processes[i].waiting_time;
+            total_tt += processes[i].turnaround_time;
+            total_rt += processes[i].response_time;
+        }
+        printf("MLFQ  -> Avg WT:%d Avg TT:%d Avg RT:%d\n",
+            total_wt/n, total_tt/n, total_rt/n);
+
+        return 0;
+        
     } else {
 
         printf("Unknown algorithm.\n");
         return 1;
     }
+
 
     print_gantt_chart(processes, n);
 
