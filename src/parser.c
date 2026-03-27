@@ -3,11 +3,13 @@
 #include "process.h"
 #include "parser.h"
 
-int load_processes(const char *filename, Process processes[], int max_processes) {
+int load_processes(const char *filename, Process processes[], int max_processes)
+{
 
     FILE *file = fopen(filename, "r");
 
-    if (file == NULL) {
+    if (file == NULL)
+    {
         printf("Error: Could not open workload file.\n");
         return -1;
     }
@@ -15,7 +17,8 @@ int load_processes(const char *filename, Process processes[], int max_processes)
     // how many processes were loaded
     int count = 0;
 
-    while (count < max_processes) {
+    while (count < max_processes)
+    {
 
         // buffer to hold one line from the file
         char line[128];
@@ -24,17 +27,21 @@ int load_processes(const char *filename, Process processes[], int max_processes)
         if (fgets(line, sizeof(line), file) == NULL)
             break;
 
-        // skip comments
-        if (line[0] == '#')
+        // skip empty lines or comments (even with leading spaces)
+        if (line[0] == '\n' || line[0] == '\0')
+            continue;
+
+        if (line[0] == '#' || line[0] == ' ' || line[0] == '\t')
             continue;
 
         // creates a temporary process object
         Process p;
 
-        if (sscanf(line, "%s %d %d",
+        if (sscanf(line, "%15s %d %d",
                    p.pid,
                    &p.arrival_time,
-                   &p.burst_time) == 3) {
+                   &p.burst_time) == 3)
+        {
 
             p.remaining_time = p.burst_time;
             p.start_time = -1;
