@@ -1,7 +1,8 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-typedef struct {
+typedef struct
+{
     char pid[16];
 
     int arrival_time;
@@ -18,9 +19,6 @@ typedef struct {
     int priority;
     int time_in_queue;
 
-    int timeline[1000];
-    int timeline_length;
-    
 } Process;
 
 #endif
