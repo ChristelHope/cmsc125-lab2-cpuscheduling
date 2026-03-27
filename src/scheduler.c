@@ -57,7 +57,7 @@ int schedule_sjf(Process *processes, int n)
 
     int completed = 0;
     int current_time = 0;
-    int visited[100] = {0};
+    int visited[MAX_PROCESSES] = {0};
 
     while (completed < n)
     {
@@ -111,10 +111,13 @@ int schedule_rr(Process *processes, int n, int quantum)
     int current_time = 0;
     int completed = 0;
 
-    int queue[100];
+    int queue[MAX_PROCESSES];
     int front = 0, rear = 0;
 
-    int added[100] = {0};
+    int added[MAX_PROCESSES] = {0};
+
+// circular queue helper
+#define NEXT(x) (((x) + 1) % MAX_PROCESSES)
 
     while (completed < n)
     {
@@ -124,8 +127,11 @@ int schedule_rr(Process *processes, int n, int quantum)
         {
             if (!added[j] && processes[j].arrival_time <= current_time)
             {
-                if (rear < MAX_PROCESSES)
-                    queue[rear++] = j;
+                if (NEXT(rear) != front)
+                {
+                    queue[rear] = j;
+                    rear = NEXT(rear);
+                }
                 added[j] = 1;
             }
         }
@@ -136,7 +142,8 @@ int schedule_rr(Process *processes, int n, int quantum)
             continue;
         }
 
-        int i = queue[front++];
+        int i = queue[front];
+        front = NEXT(front);
 
         if (processes[i].remaining_time > 0)
         {
@@ -146,19 +153,42 @@ int schedule_rr(Process *processes, int n, int quantum)
                     ? processes[i].remaining_time
                     : quantum;
 
-            // record timeline
+            // record timeline + simulate per time unit
             for (int t = 0; t < run_time; t++)
             {
                 if (timeline_length < MAX_TIMELINE)
                     timeline[timeline_length++] = i;
+
+                current_time++;
+
+                // check arrivals DURING execution
+                for (int j = 0; j < n; j++)
+                {
+                    if (!added[j] && processes[j].arrival_time <= current_time)
+                    {
+                        if (NEXT(rear) != front)
+                        {
+                            queue[rear] = j;
+                            rear = NEXT(rear);
+                        }
+                        added[j] = 1;
+                    }
+                }
             }
 
-            execute_process(&processes[i], &current_time, run_time);
+            if (processes[i].start_time == -1)
+                processes[i].start_time = current_time - run_time;
+
+            processes[i].remaining_time -= run_time;
 
             if (processes[i].remaining_time > 0)
             {
-                if (rear < MAX_PROCESSES)
-                    queue[rear++] = i; // put back in queue
+                // put back in queue (fair rotation)
+                if (NEXT(rear) != front)
+                {
+                    queue[rear] = i;
+                    rear = NEXT(rear);
+                }
             }
             else
             {
@@ -226,10 +256,10 @@ int schedule_mlfq(Process *processes, int n)
     int current_time = 0;
     int completed = 0;
 
-    int q0[100], q1[100], q2[100];
+    int q0[MAX_PROCESSES], q1[MAX_PROCESSES], q2[MAX_PROCESSES];
     int f0 = 0, r0 = 0, f1 = 0, r1 = 0, f2 = 0, r2 = 0;
 
-    int added[100] = {0};
+    int added[MAX_PROCESSES] = {0};
 
     int BOOST_INTERVAL = 100;
 

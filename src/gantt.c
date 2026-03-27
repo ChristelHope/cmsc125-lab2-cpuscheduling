@@ -5,11 +5,13 @@
 extern int timeline[1000];
 extern int timeline_length;
 
-void print_gantt_chart(Process *processes, int n) {
+void print_gantt_chart(Process *processes, int n)
+{
 
     printf("\nGantt Chart:\n");
 
-    if (timeline_length == 0) {
+    if (timeline_length == 0)
+    {
         printf("No timeline data.\n");
         return;
     }
@@ -17,15 +19,18 @@ void print_gantt_chart(Process *processes, int n) {
     // print process blocks (compressed)
     printf("|");
 
-    int prev = -1; 
+    int prev = -1;
 
-    for (int i = 0; i < timeline_length; i++) {
+    for (int i = 0; i < timeline_length && i < 1000; i++)
+    {
 
         if (timeline[i] < 0 || timeline[i] >= n)
             continue;
 
-        if (timeline[i] != prev) {
-            printf(" %s |", processes[timeline[i]].pid); 
+        if (timeline[i] != prev)
+        {
+            printf(" %s |", processes[timeline[i]].pid);
+            prev = timeline[i];
         }
     }
 
@@ -34,14 +39,15 @@ void print_gantt_chart(Process *processes, int n) {
     // print time markers
     int last = -1;
 
-    for (int i = 0; i < timeline_length; i++) {
+    for (int i = 0; i < timeline_length && i < 1000; i++)
+    {
 
         if (timeline[i] < 0 || timeline[i] >= n)
             continue;
 
-        if (i == 0 || timeline[i] != last) {
-
-            if (i == 0)
+        if (timeline[i] != last)
+        {
+            if (last == -1)
                 printf("0");
             else
                 printf("%4d", i);
@@ -50,5 +56,5 @@ void print_gantt_chart(Process *processes, int n) {
         }
     }
 
-    printf("%4d\n\n", timeline_length);
+    printf("%4d\n\n", (timeline_length < 1000 ? timeline_length : 1000));
 }
