@@ -10,7 +10,8 @@ int load_processes(const char *filename, Process processes[], int max_processes)
 
     if (file == NULL)
     {
-        printf("Error: Could not open workload file.\n");
+        fprintf(stderr, "Error: Could not open workload file.\n");
+        perror("fopen");  
         return -1;
     }
 

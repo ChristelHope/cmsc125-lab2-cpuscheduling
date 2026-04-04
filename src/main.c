@@ -8,7 +8,18 @@
 #include "gantt.h"
 #include "gantt_context.h"
 
-#define MAX_PROCESSES 100
+
+void print_avg(const char *label, int total_wt, int total_tt, int total_rt, int n)
+{
+    if (n > 0)
+    {
+        printf("%s -> Avg WT:%d Avg TT:%d Avg RT:%d\n",
+               label,
+               total_wt / n,
+               total_tt / n,
+               total_rt / n);
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -36,7 +47,7 @@ int main(int argc, char *argv[])
 
             if (*end != '\0' || q <= 0)
             {
-                printf("Invalid quantum value.\n");
+                fprintf(stderr, "Error: Invalid quantum value.\n");
                 return 1;
             }
 
@@ -47,7 +58,7 @@ int main(int argc, char *argv[])
     // validate required flags
     if (workload == NULL || algorithm == NULL)
     {
-        printf("Usage: %s --input=<file> --algorithm=<algo> [--quantum=N]\n", argv[0]);
+        fprintf(stderr, "Usage: %s --input=<file> --algorithm=<algo> [--quantum=N]\n", argv[0]);
         return 1;
     }
 
@@ -56,13 +67,13 @@ int main(int argc, char *argv[])
 
     if (n < 0)
     {
-        printf("Error: failed to load processes.\n");
+        fprintf(stderr, "Error: failed to load processes.\n");
         return 1;
     }
 
     if (n == 0)
     {
-        printf("No processes found.\n");
+        fprintf(stderr, "No processes found.\n");
         return 1;
     }
 
@@ -71,13 +82,13 @@ int main(int argc, char *argv[])
     {
         if (processes[i].arrival_time < 0)
         {
-            printf("Error: Process %s has negative arrival time.\n", processes[i].pid);
+            fprintf(stderr, "Error: Process %s has negative arrival time.\n", processes[i].pid);
             return 1;
         }
 
         if (processes[i].burst_time <= 0)
         {
-            printf("Error: Process %s has invalid burst time.\n", processes[i].pid);
+            fprintf(stderr, "Error: Process %s has invalid burst time.\n", processes[i].pid);
             return 1;
         }
     }
@@ -90,7 +101,7 @@ int main(int argc, char *argv[])
 
     if (ctx.timeline == NULL)
     {
-        printf("Memory allocation failed.\n");
+        fprintf(stderr, "Memory allocation failed.\n");
         return 1;
     }
 
@@ -114,7 +125,7 @@ int main(int argc, char *argv[])
     {
         if (quantum <= 0)
         {
-            printf("Round Robin requires a valid --quantum=N.\n");
+            fprintf(stderr, "Round Robin requires a valid --quantum=N.\n");
             free(ctx.timeline);
             return 1;
         }
@@ -131,13 +142,6 @@ int main(int argc, char *argv[])
     {
         printf("=== COMPARISON MODE ===\n\n");
 
-#define PRINT_AVG(label)                                    \
-    if (n > 0)                                              \
-    {                                                       \
-        printf(label " -> Avg WT:%d Avg TT:%d Avg RT:%d\n", \
-               total_wt / n, total_tt / n, total_rt / n);   \
-    }
-
         int total_wt, total_tt, total_rt;
 
         // FCFS
@@ -152,7 +156,7 @@ int main(int argc, char *argv[])
             total_tt += processes[i].turnaround_time;
             total_rt += processes[i].response_time;
         }
-        PRINT_AVG("FCFS ");
+        print_avg("FCFS ", total_wt, total_tt, total_rt, n);
 
         // SJF
         reset_processes(processes, n);
@@ -166,7 +170,7 @@ int main(int argc, char *argv[])
             total_tt += processes[i].turnaround_time;
             total_rt += processes[i].response_time;
         }
-        PRINT_AVG("SJF  ");
+        print_avg("SJF  ", total_wt, total_tt, total_rt, n);
 
         // STCF
         reset_processes(processes, n);
@@ -180,7 +184,7 @@ int main(int argc, char *argv[])
             total_tt += processes[i].turnaround_time;
             total_rt += processes[i].response_time;
         }
-        PRINT_AVG("STCF ");
+        print_avg("STCF ", total_wt, total_tt, total_rt, n);
 
         // RR
         reset_processes(processes, n);
@@ -194,7 +198,7 @@ int main(int argc, char *argv[])
             total_tt += processes[i].turnaround_time;
             total_rt += processes[i].response_time;
         }
-        PRINT_AVG("RR   ");
+        print_avg("RR   ", total_wt, total_tt, total_rt, n);
 
         // MLFQ
         reset_processes(processes, n);
@@ -208,14 +212,14 @@ int main(int argc, char *argv[])
             total_tt += processes[i].turnaround_time;
             total_rt += processes[i].response_time;
         }
-        PRINT_AVG("MLFQ ");
+        print_avg("MLFQ ", total_wt, total_tt, total_rt, n);
 
         free(ctx.timeline);
         return 0;
     }
     else
     {
-        printf("Unknown algorithm.\n");
+        fprintf(stderr, "Unknown algorithm.\n");
         free(ctx.timeline);
         return 1;
     }
