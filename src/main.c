@@ -12,17 +12,46 @@
 
 int main(int argc, char *argv[])
 {
-    if (argc < 3)
+    Process processes[MAX_PROCESSES];
+
+    char *workload = NULL;
+    char *algorithm = NULL;
+    int quantum = -1;
+
+    // parse flags first
+    for (int i = 1; i < argc; i++)
     {
-        printf("Usage: %s <workload_file> <algorithm> [quantum]\n", argv[0]);
+        if (strncmp(argv[i], "--input=", 8) == 0)
+        {
+            workload = argv[i] + 8;
+        }
+        else if (strncmp(argv[i], "--algorithm=", 12) == 0)
+        {
+            algorithm = argv[i] + 12;
+        }
+        else if (strncmp(argv[i], "--quantum=", 10) == 0)
+        {
+            char *end;
+            long q = strtol(argv[i] + 10, &end, 10);
+
+            if (*end != '\0' || q <= 0)
+            {
+                printf("Invalid quantum value.\n");
+                return 1;
+            }
+
+            quantum = (int)q;
+        }
+    }
+
+    // validate required flags
+    if (workload == NULL || algorithm == NULL)
+    {
+        printf("Usage: %s --input=<file> --algorithm=<algo> [--quantum=N]\n", argv[0]);
         return 1;
     }
 
-    Process processes[MAX_PROCESSES];
-
-    char *workload = argv[1];
-    char *algorithm = argv[2];
-
+    // now load processes (correct order)
     int n = load_processes(workload, processes, MAX_PROCESSES);
 
     if (n < 0)
@@ -37,7 +66,23 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // Dynamic GanttContext init
+    // input validation
+    for (int i = 0; i < n; i++)
+    {
+        if (processes[i].arrival_time < 0)
+        {
+            printf("Error: Process %s has negative arrival time.\n", processes[i].pid);
+            return 1;
+        }
+
+        if (processes[i].burst_time <= 0)
+        {
+            printf("Error: Process %s has invalid burst time.\n", processes[i].pid);
+            return 1;
+        }
+    }
+
+    // gantt context
     GanttContext ctx;
     ctx.capacity = 1000;
     ctx.length = 0;
@@ -49,42 +94,37 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    // algorithm dispatch
     if (strcmp(algorithm, "fcfs") == 0)
     {
         reset_processes(processes, n);
-        ctx.length = 0;
         schedule_fcfs(processes, n, &ctx);
     }
     else if (strcmp(algorithm, "sjf") == 0)
     {
         reset_processes(processes, n);
-        ctx.length = 0;
         schedule_sjf(processes, n, &ctx);
     }
     else if (strcmp(algorithm, "stcf") == 0)
     {
         reset_processes(processes, n);
-        ctx.length = 0;
         schedule_stcf(processes, n, &ctx);
     }
     else if (strcmp(algorithm, "rr") == 0)
     {
-        if (argc < 4)
+        if (quantum <= 0)
         {
-            printf("Round Robin requires a quantum.\n");
+            printf("Round Robin requires a valid --quantum=N.\n");
             free(ctx.timeline);
             return 1;
         }
 
-        int quantum = atoi(argv[3]);
         reset_processes(processes, n);
-        ctx.length = 0;
         schedule_rr(processes, n, quantum, &ctx);
     }
     else if (strcmp(algorithm, "mlfq") == 0)
     {
         reset_processes(processes, n);
-        ctx.length = 0;
         schedule_mlfq(processes, n, &ctx);
     }
     else if (strcmp(algorithm, "compare") == 0)
@@ -96,17 +136,12 @@ int main(int argc, char *argv[])
     {                                                       \
         printf(label " -> Avg WT:%d Avg TT:%d Avg RT:%d\n", \
                total_wt / n, total_tt / n, total_rt / n);   \
-    }                                                       \
-    else                                                    \
-    {                                                       \
-        printf(label " -> Avg WT:0 Avg TT:0 Avg RT:0\n");   \
     }
 
         int total_wt, total_tt, total_rt;
 
         // FCFS
         reset_processes(processes, n);
-        ctx.length = 0;
         schedule_fcfs(processes, n, &ctx);
         calculate_metrics(processes, n);
 
@@ -121,7 +156,6 @@ int main(int argc, char *argv[])
 
         // SJF
         reset_processes(processes, n);
-        ctx.length = 0;
         schedule_sjf(processes, n, &ctx);
         calculate_metrics(processes, n);
 
@@ -136,7 +170,6 @@ int main(int argc, char *argv[])
 
         // STCF
         reset_processes(processes, n);
-        ctx.length = 0;
         schedule_stcf(processes, n, &ctx);
         calculate_metrics(processes, n);
 
@@ -151,7 +184,6 @@ int main(int argc, char *argv[])
 
         // RR
         reset_processes(processes, n);
-        ctx.length = 0;
         schedule_rr(processes, n, 30, &ctx);
         calculate_metrics(processes, n);
 
@@ -166,7 +198,6 @@ int main(int argc, char *argv[])
 
         // MLFQ
         reset_processes(processes, n);
-        ctx.length = 0;
         schedule_mlfq(processes, n, &ctx);
         calculate_metrics(processes, n);
 
@@ -179,7 +210,7 @@ int main(int argc, char *argv[])
         }
         PRINT_AVG("MLFQ ");
 
-        free(ctx.timeline); // prevent leak
+        free(ctx.timeline);
         return 0;
     }
     else
@@ -190,7 +221,6 @@ int main(int argc, char *argv[])
     }
 
     print_gantt_chart(&ctx, processes, n);
-
     calculate_metrics(processes, n);
 
     for (int i = 0; i < n; i++)
@@ -205,6 +235,5 @@ int main(int argc, char *argv[])
     }
 
     free(ctx.timeline);
-
     return 0;
 }

@@ -18,7 +18,7 @@ void print_gantt_chart(GanttContext *ctx, Process *processes, int n)
 
     int prev = -1;
 
-    for (int i = 0; i < ctx->length && i < MAX_TIMELINE; i++)
+    for (int i = 0; i < ctx->length; i++)
     {
         if (ctx->timeline[i] < 0 || ctx->timeline[i] >= n)
             continue;
@@ -35,7 +35,7 @@ void print_gantt_chart(GanttContext *ctx, Process *processes, int n)
     // print time markers
     int last = -1;
 
-    for (int i = 0; i < ctx->length && i < MAX_TIMELINE; i++)
+    for (int i = 0; i < ctx->length; i++)
     {
         if (ctx->timeline[i] < 0 || ctx->timeline[i] >= n)
             continue;
@@ -51,5 +51,5 @@ void print_gantt_chart(GanttContext *ctx, Process *processes, int n)
         }
     }
 
-    printf("%4d\n\n", (ctx->length < MAX_TIMELINE ? ctx->length : MAX_TIMELINE));
+    printf("%4d\n\n", ctx->length);
 }

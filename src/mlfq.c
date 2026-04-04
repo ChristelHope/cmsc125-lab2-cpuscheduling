@@ -7,9 +7,9 @@ int schedule_mlfq(Process *processes, int n, GanttContext *ctx)
   int current_time = 0;
   int completed = 0;
 
-  // struct instead of raw arrays
   MLFQScheduler sched;
 
+  // initialize queues
   for (int i = 0; i < MLFQ_LEVELS; i++)
   {
     sched.levels[i].front = 0;
@@ -20,6 +20,8 @@ int schedule_mlfq(Process *processes, int n, GanttContext *ctx)
   sched.levels[1].quantum = 20;
   sched.levels[2].quantum = 0; // FCFS
 
+  int allotment[MLFQ_LEVELS] = {50, 100, 1000000};
+
   int added[MAX_PROCESSES] = {0};
   int BOOST_INTERVAL = 100;
 
@@ -28,29 +30,30 @@ int schedule_mlfq(Process *processes, int n, GanttContext *ctx)
     // priority boost
     if (current_time > 0 && current_time % BOOST_INTERVAL == 0)
     {
-      for (int i = 0; i < MLFQ_LEVELS; i++)
+      while (sched.levels[1].front < sched.levels[1].rear)
       {
-        sched.levels[i].front = 0;
-        sched.levels[i].rear = 0;
+        int pid = sched.levels[1].queue[sched.levels[1].front++];
+        sched.levels[0].queue[sched.levels[0].rear++] = pid;
+        processes[pid].time_in_queue = 0;
       }
 
-      for (int i = 0; i < n; i++)
+      while (sched.levels[2].front < sched.levels[2].rear)
       {
-        if (processes[i].remaining_time > 0)
-        {
-          if (sched.levels[0].rear < MAX_PROCESSES)
-            sched.levels[0].queue[sched.levels[0].rear++] = i;
-        }
+        int pid = sched.levels[2].queue[sched.levels[2].front++];
+        sched.levels[0].queue[sched.levels[0].rear++] = pid;
+        processes[pid].time_in_queue = 0;
       }
+
+      sched.levels[1].front = sched.levels[1].rear = 0;
+      sched.levels[2].front = sched.levels[2].rear = 0;
     }
 
-    // add arrivals → Q0
+    // add arrivals -> Q0
     for (int i = 0; i < n; i++)
     {
       if (!added[i] && processes[i].arrival_time <= current_time)
       {
-        if (sched.levels[0].rear < MAX_PROCESSES)
-          sched.levels[0].queue[sched.levels[0].rear++] = i;
+        sched.levels[0].queue[sched.levels[0].rear++] = i;
         added[i] = 1;
       }
     }
@@ -58,67 +61,65 @@ int schedule_mlfq(Process *processes, int n, GanttContext *ctx)
     int i = -1;
     int level = -1;
 
-    // pick highest priority
-    if (sched.levels[0].front < sched.levels[0].rear)
+    // pick next process
+    for (int l = 0; l < MLFQ_LEVELS; l++)
     {
-      i = sched.levels[0].queue[sched.levels[0].front++];
-      level = 0;
+      if (sched.levels[l].front < sched.levels[l].rear)
+      {
+        i = sched.levels[l].queue[sched.levels[l].front++];
+        level = l;
+        break;
+      }
     }
-    else if (sched.levels[1].front < sched.levels[1].rear)
-    {
-      i = sched.levels[1].queue[sched.levels[1].front++];
-      level = 1;
-    }
-    else if (sched.levels[2].front < sched.levels[2].rear)
-    {
-      i = sched.levels[2].queue[sched.levels[2].front++];
-      level = 2;
-    }
-    else
+
+    if (i == -1)
     {
       current_time++;
       continue;
     }
 
-    int quantum;
-    if (level == 0)
-      quantum = sched.levels[0].quantum;
-    else if (level == 1)
-      quantum = sched.levels[1].quantum;
-    else
-      quantum = processes[i].remaining_time; // FCFS
+    int quantum = (level == 2)
+                      ? processes[i].remaining_time
+                      : sched.levels[level].quantum;
 
-    int run_time =
-        processes[i].remaining_time < quantum
-            ? processes[i].remaining_time
-            : quantum;
+    int run_time = (processes[i].remaining_time < quantum)
+                       ? processes[i].remaining_time
+                       : quantum;
 
     // record timeline
     for (int t = 0; t < run_time; t++)
     {
-      if (ctx->length < MAX_TIMELINE)
+      if (ctx->length < ctx->capacity)
         ctx->timeline[ctx->length++] = i;
     }
 
     execute_process(&processes[i], &current_time, run_time);
+    processes[i].time_in_queue += run_time;
 
-    // demotion
+    // allotment tracking
+    processes[i].time_in_queue += run_time;
+
     if (processes[i].remaining_time > 0)
     {
-      if (level == 0)
+      // check allotment BEFORE demoting
+      if (processes[i].time_in_queue >= allotment[level])
       {
-        if (sched.levels[1].rear < MAX_PROCESSES)
-          sched.levels[1].queue[sched.levels[1].rear++] = i;
-      }
-      else if (level == 1)
-      {
-        if (sched.levels[2].rear < MAX_PROCESSES)
-          sched.levels[2].queue[sched.levels[2].rear++] = i;
+        processes[i].time_in_queue = 0; // reset on demotion
+
+        if (level < MLFQ_LEVELS - 1)
+        {
+          sched.levels[level + 1].queue[sched.levels[level + 1].rear++] = i;
+        }
+        else
+        {
+          // already lowest -> stay
+          sched.levels[level].queue[sched.levels[level].rear++] = i;
+        }
       }
       else
       {
-        if (sched.levels[2].rear < MAX_PROCESSES)
-          sched.levels[2].queue[sched.levels[2].rear++] = i;
+        // still within allotment -> stay in same queue
+        sched.levels[level].queue[sched.levels[level].rear++] = i;
       }
     }
     else
