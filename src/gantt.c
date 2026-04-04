@@ -1,16 +1,13 @@
 #include <stdio.h>
 #include "process.h"
 #include "gantt.h"
+#include "gantt_context.h"
 
-extern int timeline[1000];
-extern int timeline_length;
-
-void print_gantt_chart(Process *processes, int n)
+void print_gantt_chart(GanttContext *ctx, Process *processes, int n)
 {
-
     printf("\nGantt Chart:\n");
 
-    if (timeline_length == 0)
+    if (ctx->length == 0)
     {
         printf("No timeline data.\n");
         return;
@@ -21,16 +18,15 @@ void print_gantt_chart(Process *processes, int n)
 
     int prev = -1;
 
-    for (int i = 0; i < timeline_length && i < 1000; i++)
+    for (int i = 0; i < ctx->length && i < MAX_TIMELINE; i++)
     {
-
-        if (timeline[i] < 0 || timeline[i] >= n)
+        if (ctx->timeline[i] < 0 || ctx->timeline[i] >= n)
             continue;
 
-        if (timeline[i] != prev)
+        if (ctx->timeline[i] != prev)
         {
-            printf(" %s |", processes[timeline[i]].pid);
-            prev = timeline[i];
+            printf(" %s |", processes[ctx->timeline[i]].pid);
+            prev = ctx->timeline[i];
         }
     }
 
@@ -39,22 +35,21 @@ void print_gantt_chart(Process *processes, int n)
     // print time markers
     int last = -1;
 
-    for (int i = 0; i < timeline_length && i < 1000; i++)
+    for (int i = 0; i < ctx->length && i < MAX_TIMELINE; i++)
     {
-
-        if (timeline[i] < 0 || timeline[i] >= n)
+        if (ctx->timeline[i] < 0 || ctx->timeline[i] >= n)
             continue;
 
-        if (timeline[i] != last)
+        if (ctx->timeline[i] != last)
         {
             if (last == -1)
                 printf("0");
             else
                 printf("%4d", i);
 
-            last = timeline[i];
+            last = ctx->timeline[i];
         }
     }
 
-    printf("%4d\n\n", (timeline_length < 1000 ? timeline_length : 1000));
+    printf("%4d\n\n", (ctx->length < MAX_TIMELINE ? ctx->length : MAX_TIMELINE));
 }

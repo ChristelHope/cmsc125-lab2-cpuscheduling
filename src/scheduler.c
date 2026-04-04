@@ -3,9 +3,6 @@
 
 #define MAX_PROCESSES 100
 
-int timeline[1000];
-int timeline_length = 0;
-
 void execute_process(Process *p, int *current_time, int run_time)
 {
 
@@ -23,8 +20,6 @@ void execute_process(Process *p, int *current_time, int run_time)
 
 void reset_processes(Process *processes, int n)
 {
-
-    timeline_length = 0;
 
     for (int i = 0; i < n; i++)
     {

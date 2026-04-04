@@ -1,10 +1,11 @@
 #include "sjf.h"
 #include "scheduler.h"
+#include "gantt_context.h"
 
 extern int timeline[];
 extern int timeline_length;
 
-int schedule_sjf(Process *processes, int n)
+int schedule_sjf(Process *processes, int n, GanttContext *ctx)
 {
 
   int completed = 0;
@@ -44,8 +45,8 @@ int schedule_sjf(Process *processes, int n)
     // record timeline
     for (int t = 0; t < run_time; t++)
     {
-      if (timeline_length < MAX_TIMELINE)
-        timeline[timeline_length++] = shortest;
+      if (ctx->length < MAX_TIMELINE)
+        ctx->timeline[ctx->length++] = shortest;
     }
 
     execute_process(&processes[shortest], &current_time, run_time);

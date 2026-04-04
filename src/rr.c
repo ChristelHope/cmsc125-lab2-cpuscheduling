@@ -1,12 +1,13 @@
 #include "rr.h"
 #include "scheduler.h"
+#include "gantt_context.h"
 
 extern int timeline[];
 extern int timeline_length;
 
 #define NEXT(x) (((x) + 1) % MAX_PROCESSES)
 
-int schedule_rr(Process *processes, int n, int quantum)
+int schedule_rr(Process *processes, int n, int quantum, GanttContext *ctx)
 {
 
   int current_time = 0;
@@ -57,8 +58,8 @@ int schedule_rr(Process *processes, int n, int quantum)
       // record timeline + simulate per time unit
       for (int t = 0; t < run_time; t++)
       {
-        if (timeline_length < MAX_TIMELINE)
-          timeline[timeline_length++] = i;
+        if (ctx->length < MAX_TIMELINE)
+          ctx->timeline[ctx->length++] = i;
 
         current_time++;
 

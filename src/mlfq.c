@@ -1,47 +1,56 @@
 #include "mlfq.h"
 #include "scheduler.h"
+#include "gantt_context.h"
 
-extern int timeline[];
-extern int timeline_length;
-
-int schedule_mlfq(Process *processes, int n)
+int schedule_mlfq(Process *processes, int n, GanttContext *ctx)
 {
-
   int current_time = 0;
   int completed = 0;
 
-  int q0[MAX_PROCESSES], q1[MAX_PROCESSES], q2[MAX_PROCESSES];
-  int f0 = 0, r0 = 0, f1 = 0, r1 = 0, f2 = 0, r2 = 0;
+  // struct instead of raw arrays
+  MLFQScheduler sched;
+
+  for (int i = 0; i < MLFQ_LEVELS; i++)
+  {
+    sched.levels[i].front = 0;
+    sched.levels[i].rear = 0;
+  }
+
+  sched.levels[0].quantum = 10;
+  sched.levels[1].quantum = 20;
+  sched.levels[2].quantum = 0; // FCFS
 
   int added[MAX_PROCESSES] = {0};
-
   int BOOST_INTERVAL = 100;
 
   while (completed < n)
   {
-
     // priority boost
     if (current_time > 0 && current_time % BOOST_INTERVAL == 0)
     {
-      f0 = r0 = f1 = r1 = f2 = r2 = 0;
+      for (int i = 0; i < MLFQ_LEVELS; i++)
+      {
+        sched.levels[i].front = 0;
+        sched.levels[i].rear = 0;
+      }
 
       for (int i = 0; i < n; i++)
       {
         if (processes[i].remaining_time > 0)
         {
-          if (r0 < MAX_PROCESSES)
-            q0[r0++] = i;
+          if (sched.levels[0].rear < MAX_PROCESSES)
+            sched.levels[0].queue[sched.levels[0].rear++] = i;
         }
       }
     }
 
-    // ADD ARRIVALS → Q0
+    // add arrivals → Q0
     for (int i = 0; i < n; i++)
     {
       if (!added[i] && processes[i].arrival_time <= current_time)
       {
-        if (r0 < MAX_PROCESSES)
-          q0[r0++] = i;
+        if (sched.levels[0].rear < MAX_PROCESSES)
+          sched.levels[0].queue[sched.levels[0].rear++] = i;
         added[i] = 1;
       }
     }
@@ -50,19 +59,19 @@ int schedule_mlfq(Process *processes, int n)
     int level = -1;
 
     // pick highest priority
-    if (f0 < r0)
+    if (sched.levels[0].front < sched.levels[0].rear)
     {
-      i = q0[f0++];
+      i = sched.levels[0].queue[sched.levels[0].front++];
       level = 0;
     }
-    else if (f1 < r1)
+    else if (sched.levels[1].front < sched.levels[1].rear)
     {
-      i = q1[f1++];
+      i = sched.levels[1].queue[sched.levels[1].front++];
       level = 1;
     }
-    else if (f2 < r2)
+    else if (sched.levels[2].front < sched.levels[2].rear)
     {
-      i = q2[f2++];
+      i = sched.levels[2].queue[sched.levels[2].front++];
       level = 2;
     }
     else
@@ -73,9 +82,9 @@ int schedule_mlfq(Process *processes, int n)
 
     int quantum;
     if (level == 0)
-      quantum = 10;
+      quantum = sched.levels[0].quantum;
     else if (level == 1)
-      quantum = 20;
+      quantum = sched.levels[1].quantum;
     else
       quantum = processes[i].remaining_time; // FCFS
 
@@ -87,29 +96,29 @@ int schedule_mlfq(Process *processes, int n)
     // record timeline
     for (int t = 0; t < run_time; t++)
     {
-      if (timeline_length < MAX_TIMELINE)
-        timeline[timeline_length++] = i;
+      if (ctx->length < MAX_TIMELINE)
+        ctx->timeline[ctx->length++] = i;
     }
 
     execute_process(&processes[i], &current_time, run_time);
 
-    // IF NOT FINISHED → DEMOTE
+    // demotion
     if (processes[i].remaining_time > 0)
     {
       if (level == 0)
       {
-        if (r1 < MAX_PROCESSES)
-          q1[r1++] = i;
+        if (sched.levels[1].rear < MAX_PROCESSES)
+          sched.levels[1].queue[sched.levels[1].rear++] = i;
       }
       else if (level == 1)
       {
-        if (r2 < MAX_PROCESSES)
-          q2[r2++] = i;
+        if (sched.levels[2].rear < MAX_PROCESSES)
+          sched.levels[2].queue[sched.levels[2].rear++] = i;
       }
       else
       {
-        if (r2 < MAX_PROCESSES)
-          q2[r2++] = i;
+        if (sched.levels[2].rear < MAX_PROCESSES)
+          sched.levels[2].queue[sched.levels[2].rear++] = i;
       }
     }
     else

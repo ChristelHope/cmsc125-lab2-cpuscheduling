@@ -9,14 +9,15 @@
 #include "stcf.h"
 #include "rr.h"
 #include "mlfq.h"
+#include "gantt_context.h"
 
 void execute_process(Process *p, int *current_time, int run_time);
 
-int schedule_fcfs(Process *processes, int n);
-int schedule_sjf(Process *processes, int n);
-int schedule_stcf(Process *processes, int n);
-int schedule_rr(Process *processes, int n, int quantum);
-int schedule_mlfq(Process *processes, int n);
+int schedule_fcfs(Process *processes, int n, GanttContext *ctx);
+int schedule_sjf(Process *processes, int n, GanttContext *ctx);
+int schedule_stcf(Process *processes, int n, GanttContext *ctx);
+int schedule_rr(Process *processes, int n, int quantum, GanttContext *ctx);
+int schedule_mlfq(Process *processes, int n, GanttContext *ctx);
 
 void reset_processes(Process *processes, int n);
 
