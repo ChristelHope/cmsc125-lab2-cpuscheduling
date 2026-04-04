@@ -1,7 +1,16 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
+#define MAX_PROCESSES 100
+#define MAX_TIMELINE 1000
 
 #include "process.h"
+#include "fcfs.h"
+#include "sjf.h"
+#include "stcf.h"
+#include "rr.h"
+#include "mlfq.h"
+
+void execute_process(Process *p, int *current_time, int run_time);
 
 int schedule_fcfs(Process *processes, int n);
 int schedule_sjf(Process *processes, int n);
