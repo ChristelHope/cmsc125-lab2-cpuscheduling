@@ -1,22 +1,27 @@
-# Compiled files
-*.o
-*.out
+# executables
+cpu_scheduling
 *.exe
 
-# Binary
-schedsim
+# object files
+*.o
 
-# OS junk
+# output files
+*.out
+
+# macOS
 .DS_Store
 
-#this file is for ignoring compiled object files, 
-#executables, and OS-specific files that are not 
-#relevant to the source code.
+# vscode (optional)
+.vscode/
+
+# This file is for ignoring compiled object files, 
+# executables, and OS-specific files that are not 
+# relevant to the source code.
  
 # By including these patterns in the .gitignore file, we can ensure that 
-#only the source code and relevant files are tracked by
+# only the source code and relevant files are tracked by
 # version control, while keeping the repository clean 
-#and free of unnecessary files.
+# and free of unnecessary files.
 
 # This helps to maintain a clear and organized 
 # codebase, making it easier to collaborate & manage project effectively

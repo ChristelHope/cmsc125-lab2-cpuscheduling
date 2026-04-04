@@ -2,8 +2,9 @@
 #define GANTT_H
 
 #include "process.h"
+#include "gantt_context.h"
 
-void print_gantt_chart(Process *processes, int n);
+void print_gantt_chart(GanttContext *ctx, Process *processes, int n);
 
 #endif
 

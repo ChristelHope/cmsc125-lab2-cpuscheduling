@@ -1,10 +1,11 @@
 #include "stcf.h"
 #include "scheduler.h"
+#include "gantt_context.h"
 
 extern int timeline[];
 extern int timeline_length;
 
-int schedule_stcf(Process *processes, int n)
+int schedule_stcf(Process *processes, int n, GanttContext *ctx)
 {
 
   int current_time = 0;
@@ -37,8 +38,8 @@ int schedule_stcf(Process *processes, int n)
     }
 
     // record execution (1 time unit only!)
-    if (timeline_length < MAX_TIMELINE)
-      timeline[timeline_length++] = shortest;
+    if (ctx->length < MAX_TIMELINE)
+      ctx->timeline[ctx->length++] = shortest;
 
     // execute for 1 unit (preemptive!)
     execute_process(&processes[shortest], &current_time, 1);

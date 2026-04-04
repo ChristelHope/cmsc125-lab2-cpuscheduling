@@ -1,10 +1,8 @@
 #include "fcfs.h"
 #include "scheduler.h"
+#include "gantt_context.h"
 
-extern int timeline[];
-extern int timeline_length;
-
-int schedule_fcfs(Process *processes, int n)
+int schedule_fcfs(Process *processes, int n, GanttContext *ctx)
 {
   // represents CPU clock time
   int current_time = 0;
@@ -20,8 +18,8 @@ int schedule_fcfs(Process *processes, int n)
 
     for (int t = 0; t < run_time; t++)
     {
-      if (timeline_length < MAX_TIMELINE)
-        timeline[timeline_length++] = i;
+      if (ctx->length < MAX_TIMELINE)
+        ctx->timeline[ctx->length++] = i;
     }
 
     execute_process(&processes[i], &current_time, run_time);
