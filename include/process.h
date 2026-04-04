@@ -1,5 +1,6 @@
 #ifndef PROCESS_H
 #define PROCESS_H
+#define MAX_PROCESSES 100
 
 typedef struct
 {

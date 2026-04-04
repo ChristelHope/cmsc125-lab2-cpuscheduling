@@ -42,7 +42,7 @@ void print_gantt_chart(GanttContext *ctx, Process *processes, int n)
 
         if (ctx->timeline[i] != last)
         {
-            if (last == -1)
+            if (last == -1)   
                 printf("0");
             else
                 printf("%4d", i);

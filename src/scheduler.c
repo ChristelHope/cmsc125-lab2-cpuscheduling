@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include "scheduler.h"
 
-#define MAX_PROCESSES 100
-
 void execute_process(Process *p, int *current_time, int run_time)
 {
 
