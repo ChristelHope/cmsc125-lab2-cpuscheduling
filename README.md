@@ -110,6 +110,31 @@ C 20 150
 
 ## IV. Output
 
+Expected Outputs for the ff. algorithms:
+### FCFS
+![FCFS](ss/fcfs.png)
+
+### SJF
+![SJF](ss/sjf.png)
+
+### STCF
+![STCF](ss/stcf.png)
+
+### RR
+![RR](ss/rr.png)
+
+### Comparison
+![Comparison](ss/comparison.png)
+
+### MLFQ
+![MLFQ](ss/mlfq.png)
+
+![MLFQ Workload Type 0](ss/mlfqHandlingDiffWorkloadTypes/workloadtype0.png)
+![MLFQ Workload Type 1](ss/mlfqHandlingDiffWorkloadTypes/workloadtype1.png)
+![MLFQ Workload Type 2](ss/mlfqHandlingDiffWorkloadTypes/workloadtype2.png)
+![MLFQ Workload Type 3](ss/mlfqHandlingDiffWorkloadTypes/workloadtype3.png)
+
+
 ### 1. Gantt Chart
 
 Displays execution timeline:
