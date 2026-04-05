@@ -94,7 +94,6 @@ int schedule_mlfq(Process *processes, int n, GanttContext *ctx)
     }
 
     execute_process(&processes[i], &current_time, run_time);
-    processes[i].time_in_queue += run_time;
 
     // allotment tracking
     processes[i].time_in_queue += run_time;
