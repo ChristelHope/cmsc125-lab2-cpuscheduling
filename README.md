@@ -129,7 +129,7 @@ Expected Outputs for the ff. algorithms:
 ### MLFQ
 ![MLFQ](ss/mlfq.png)
 
-![MLFQ Workload Type 0](ss/workloadtype0.png)
+MLFQ handling different workload types:
 
 ![MLFQ Workload Type 1](ss/workloadtype1.png)
 
