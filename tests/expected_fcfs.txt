@@ -1,0 +1,10 @@
+
+Gantt Chart:
+| A | B | C | D | E |
+0 240 420 570 650 780
+
+A Start:0 Finish:240 WT:0 TT:240 RT:0
+B Start:240 Finish:420 WT:230 TT:410 RT:230
+C Start:420 Finish:570 WT:400 TT:550 RT:400
+D Start:570 Finish:650 WT:545 TT:625 RT:545
+E Start:650 Finish:780 WT:620 TT:750 RT:620

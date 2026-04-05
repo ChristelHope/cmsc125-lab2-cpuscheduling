@@ -1,0 +1,10 @@
+
+Gantt Chart:
+| A | B | A | C | B | D | E | A | C | B | D | E | A | C | B | D | E | C | B | D | E | C | A | B | D | E | A | B | A | B | A | C | D | E | B | A | C | D | E | B | C | D | E | A | C | E | A | C | E | A | B | C | E | A | B | C | E | A | B | C | E | B | A | C | B | A | C | A | B | A |
+0  20  30  40  50  60  70  80  90 100 110 120 130 140 150 160 170 180 190 200 210 220 230 240 250 260 270 280 290 300 310 320 330 340 350 360 370 380 390 400 410 420 430 440 450 460 470 480 490 500 510 520 530 540 550 560 570 580 590 600 610 620 630 640 650 660 670 680 710 740 780
+
+A Start:0 Finish:780 WT:540 TT:780 RT:0
+B Start:20 Finish:740 WT:550 TT:730 RT:10
+C Start:40 Finish:680 WT:510 TT:660 RT:20
+D Start:60 Finish:430 WT:325 TT:405 RT:35
+E Start:70 Finish:620 WT:460 TT:590 RT:40
